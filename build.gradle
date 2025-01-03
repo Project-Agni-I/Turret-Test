@@ -1,5 +1,6 @@
 plugins {
     id "java"
+    id "com.diffplug.spotless" version "6.24.0"
     id "edu.wpi.first.GradleRIO" version "2025.1.1"
 }
 
@@ -48,6 +49,15 @@ wpi.java.debugJni = false
 
 // Set this to true to enable desktop support.
 def includeDesktopSupport = false
+
+spotless {
+  java {
+    eclipse().configFile('eclipse-formatter.xml')
+  }
+}
+
+// Automatically format code on build.
+compileJava.dependsOn 'spotlessApply'
 
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 5.
