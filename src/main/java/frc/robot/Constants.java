@@ -152,16 +152,7 @@ public final class Constants {
 				new CameraParams(cameraNames[0], vehicleToCameras[2]),
 				new CameraParams(cameraNames[3], vehicleToCameras[3]));
 
-		public static final double lowUncertaintyCutoffDistance = 6.5;
-		public static final double skewCutoffDistance = 5.8;
-		public static final double skewCutoffRotation = Units.degreesToRadians(50);
-
-		public static final Matrix<N3, N1> teleopCameraUncertainty = VecBuilder.fill(0.5, 0.5, 0.5);
-		public static final Matrix<N3, N1> lowCameraUncertainty = VecBuilder.fill(2, 2, 2);
-		public static final Matrix<N3, N1> highCameraUncertainty = VecBuilder.fill(8, 8, 8);
-		public static final Matrix<N3, N1> driveUncertainty = VecBuilder.fill(0.1, 0.1, 0.1);
-
-		public static final AprilTagFieldLayout tagLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+		public static final AprilTagFields tagLayout = AprilTagFields.k2025Reefscape;
 
 	}
 

@@ -13,7 +13,14 @@
 
 package frc.robot.subsystems.drive;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -22,7 +29,11 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.pathfinding.Pathfinding;
+import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PathPlannerLogging;
+import com.pathplanner.lib.util.swerve.SwerveSetpoint;
+import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
+
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
@@ -49,10 +60,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.util.LocalADStarAK;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase {
 	// TunerConstants doesn't include these constants, so they are declared locally
@@ -104,6 +111,9 @@ public class Drive extends SubsystemBase {
 	private SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(kinematics, rawGyroRotation,
 			lastModulePositions, new Pose2d());
 
+	private final SwerveSetpointGenerator setpointGenerator;
+	private SwerveSetpoint previousSetpoint;
+
 	public Drive(
 			GyroIO gyroIO,
 			ModuleIO flModuleIO,
@@ -153,6 +163,9 @@ public class Drive extends SubsystemBase {
 						(state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
 				new SysIdRoutine.Mechanism(
 						(voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+
+		setpointGenerator = new SwerveSetpointGenerator(PP_CONFIG, Math.PI * 2);
+		previousSetpoint = new SwerveSetpoint(getChassisSpeeds(), getModuleStates(), DriveFeedforwards.zeros(4));
 	}
 
 	@Override
@@ -221,20 +234,23 @@ public class Drive extends SubsystemBase {
 	public void runVelocity(ChassisSpeeds speeds) {
 		// Calculate module setpoints
 		ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
-		SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
-		SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
+		SwerveModuleState[] setpointStatesUnoptimized = kinematics.toSwerveModuleStates(discreteSpeeds);
+		previousSetpoint = setpointGenerator.generateSetpoint(
+				previousSetpoint,
+				discreteSpeeds,
+				0.02);
+		SwerveModuleState[] setpointStates = previousSetpoint.moduleStates();
 
 		// Log unoptimized setpoints and setpoint speeds
-		Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
+		Logger.recordOutput("SwerveStates/Setpoints", setpointStatesUnoptimized);
 		Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
+		// Log optimized setpoints (runSetpoint mutates each state)
+		Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
 
 		// Send setpoints to modules
 		for (int i = 0; i < 4; i++) {
 			modules[i].runSetpoint(setpointStates[i]);
 		}
-
-		// Log optimized setpoints (runSetpoint mutates each state)
-		Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
 	}
 
 	/** Runs the drive in a straight line with the specified drive output. */
