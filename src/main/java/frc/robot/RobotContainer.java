@@ -14,6 +14,8 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -22,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AkitDriveCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -30,6 +33,10 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.drive.TunerConstants;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOPhotonReal;
+import frc.robot.subsystems.vision.VisionIOPhotonSim;
+import frc.robot.subsystems.vision.VisionLocalizer;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -45,6 +52,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
 	// Subsystems
 	private final Drive drive;
+	private final VisionLocalizer vision;
 
 	// Controller
 	private final CommandXboxController controller = new CommandXboxController(0);
@@ -56,6 +64,7 @@ public class RobotContainer {
 	 * The container for the robot. Contains subsystems, OI devices, and commands.
 	 */
 	public RobotContainer() {
+		NamedCommands.registerCommand("Shoot 2", Commands.run(() -> System.out.println("Shoot")));
 		switch (Constants.currentMode) {
 			case REAL:
 				// Real robot, instantiate hardware IO implementations
@@ -65,6 +74,9 @@ public class RobotContainer {
 						new ModuleIOTalonFX(TunerConstants.FrontRight),
 						new ModuleIOTalonFX(TunerConstants.BackLeft),
 						new ModuleIOTalonFX(TunerConstants.BackRight));
+				vision = new VisionLocalizer(
+						drive::addVisionMeasurement,
+						new VisionIOPhotonReal(VisionConstants.cameraNames[0], VisionConstants.vehicleToCameras[0]));
 				break;
 
 			case SIM:
@@ -76,6 +88,10 @@ public class RobotContainer {
 						new ModuleIOSim(TunerConstants.FrontRight),
 						new ModuleIOSim(TunerConstants.BackLeft),
 						new ModuleIOSim(TunerConstants.BackRight));
+				vision = new VisionLocalizer(
+						drive::addVisionMeasurement,
+						new VisionIOPhotonSim(VisionConstants.cameraNames[0], VisionConstants.vehicleToCameras[0],
+								drive::getPose));
 				break;
 
 			default:
@@ -91,6 +107,8 @@ public class RobotContainer {
 						},
 						new ModuleIO() {
 						});
+				vision = new VisionLocalizer(drive::addVisionMeasurement, new VisionIO() {
+				});
 				break;
 		}
 
@@ -153,4 +171,5 @@ public class RobotContainer {
 	public Command getAutonomousCommand() {
 		return autoChooser.get();
 	}
+
 }
