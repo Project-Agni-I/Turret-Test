@@ -1,4 +1,4 @@
-package frc.robot.subsystems.Pivot;
+package frc.robot.subsystems.pivot;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -11,7 +11,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.Encoder;
 import frc.robot.Constants;
 import frc.robot.Constants.MotorConstants;
-import frc.robot.Constants.PivotConstants;
+import frc.robot.subsystems.pivot.PivotConstants;
 
 public class PivotIOReal implements PivotIO {
 	private final TalonFX pivotMotor;
@@ -21,7 +21,7 @@ public class PivotIOReal implements PivotIO {
 	private MotionMagicConfigs motionMagicConfigs;
 
 	public PivotIOReal() {
-		pivotMotor = new TalonFX(MotorConstants.MOTOR_PIVOT_ID);
+		pivotMotor = new TalonFX(PivotConstants.PIVOT_MOTOR_ID);
 		pivotMotorConfig = new TalonFXConfiguration();
 
 		pivotMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;

@@ -1,9 +1,9 @@
-package frc.robot.subsystems.Pivot;
+package frc.robot.subsystems.pivot;
 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import frc.robot.Constants;
-import frc.robot.Constants.PivotConstants;
+import frc.robot.subsystems.pivot.PivotConstants;
 
 public class PivotIOSim implements PivotIO {
 	private double currentPosInRotations;
