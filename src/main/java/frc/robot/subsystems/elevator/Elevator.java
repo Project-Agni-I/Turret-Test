@@ -1,4 +1,6 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.elevator;
+
+import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -19,7 +21,7 @@ public class Elevator extends SubsystemBase {
 
 	private double targetPosition;
 
-	public Elevator() {
+	public Elevator(ElevatorIO elevatorIO) {
 		elevatorMotorLEFT = new TalonFX(MotorConstants.MOTOR_ELEVATOR_LEFT);
 		elevatorMotorRIGHT = new TalonFX(MotorConstants.MOTOR_ELEVATOR_RIGHT);
 		elevatorEncoder = new Encoder(0, 1);
@@ -27,13 +29,28 @@ public class Elevator extends SubsystemBase {
 		targetPosition = ElevatorPosition.LEVEL_1_POSITION;
 		position = new PositionVoltage(0);
 
+		Logger.start();
+		Logger.recordOutput("Elevator/TargetPosition", targetPosition);
+
 	}
 
 	public Command moveElevator(double pos) {
 		return Commands.runOnce(() -> {
+			Logger.recordOutput("ElevatorMotorLeft/MoveToPosition", pos);
 			elevatorMotorLEFT.setControl(position.withPosition(pos));
+			Logger.recordOutput("ElevatorMotorRight/MoveToPosition", pos);
 			elevatorMotorRIGHT.setControl(position.withPosition(pos));
+			Logger.recordOutput("Elevator/EncoderPosition", elevatorEncoder.getDistance());
+
 		});
+
+	}
+
+	@Override
+
+	public void periodic() {
+		Logger.recordOutput("Elevator/CurrentPosition", elevatorEncoder.getDistance());
+		Logger.recordOutput("Elevator/Speed", elevatorEncoder.getRate());
 
 	}
 

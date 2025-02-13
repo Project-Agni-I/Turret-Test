@@ -166,18 +166,18 @@ public class ModuleIOTalonFX implements ModuleIO {
 		turnCurrent = turnTalon.getStatorCurrent();
 
 		// Configure periodic frames
-		BaseStatusSignal.setUpdateFrequencyForAll(
-				Drive.ODOMETRY_FREQUENCY, drivePosition, turnPosition);
-		BaseStatusSignal.setUpdateFrequencyForAll(
-				50.0,
-				driveVelocity,
-				driveAppliedVolts,
-				driveCurrent,
-				turnAbsolutePosition,
-				turnVelocity,
-				turnAppliedVolts,
-				turnCurrent);
-		ParentDevice.optimizeBusUtilizationForAll(driveTalon, turnTalon);
+		// BaseStatusSignal.setUpdateFrequencyForAll(
+		// Drive.ODOMETRY_FREQUENCY, drivePosition, turnPosition);
+		// BaseStatusSignal.setUpdateFrequencyForAll(
+		// 50.0,
+		// driveVelocity,
+		// driveAppliedVolts,
+		// driveCurrent,
+		// turnAbsolutePosition,
+		// turnVelocity,
+		// turnAppliedVolts,
+		// turnCurrent);
+		// ParentDevice.optimizeBusUtilizationForAll(driveTalon, turnTalon);
 	}
 
 	@Override

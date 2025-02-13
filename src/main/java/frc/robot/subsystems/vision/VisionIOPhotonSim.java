@@ -37,7 +37,7 @@ public class VisionIOPhotonSim extends VisionIOPhotonReal {
 		// Initialize vision sim
 		if (visionSim == null) {
 			visionSim = new VisionSystemSim("main");
-			visionSim.addAprilTags(VisionConstants.tagLayout.loadAprilTagLayoutField());
+			visionSim.addAprilTags(VisionConstants.aprilTagLayout);
 		}
 
 		// Add sim camera
