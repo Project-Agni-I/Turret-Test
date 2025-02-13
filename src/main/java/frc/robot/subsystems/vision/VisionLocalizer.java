@@ -29,7 +29,6 @@ public class VisionLocalizer extends SubsystemBase {
 	private final Alert[] disconnectedAlerts;
 	// avoid NullPointerExceptions by setting a default no-op
 	private VisionConsumer consumer;
-	public AprilTagFieldLayout aprilTagLayout = VisionConstants.tagLayout.loadAprilTagLayoutField();
 	// private double[] cameraStdDevFactors;
 
 	/**
@@ -55,7 +54,7 @@ public class VisionLocalizer extends SubsystemBase {
 		// this.cameraStdDevFactors = cameraStdDevFactors;
 
 		for (int i = 0; i < io.length; i++) {
-			io[i].setAprilTagLayout(aprilTagLayout);
+			io[i].setAprilTagLayout(VisionConstants.aprilTagLayout);
 		}
 
 		// Initialize inputs
@@ -198,9 +197,9 @@ public class VisionLocalizer extends SubsystemBase {
 				|| observation.ambiguity() > 0.3
 				// Must be within the field boundaries
 				|| observation.pose().getX() < 0.0
-				|| observation.pose().getX() > aprilTagLayout.getFieldLength()
+				|| observation.pose().getX() > VisionConstants.aprilTagLayout.getFieldLength()
 				|| observation.pose().getY() < 0.0
-				|| observation.pose().getY() > aprilTagLayout.getFieldWidth();
+				|| observation.pose().getY() > VisionConstants.aprilTagLayout.getFieldWidth();
 	}
 
 	/**

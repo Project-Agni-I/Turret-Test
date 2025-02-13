@@ -63,6 +63,8 @@ public final class Constants {
 		public static final double LEVEL_2_POSITION = 2;
 		public static final double LEVEL_3_POSITION = 2;
 		public static final double LEVEL_4_POSITION = 2;
+		public static final double ELEVATOR_POSITION_TOLERANCE = 0;
+
 	}
 
 	public static final class MotorConstants {
@@ -96,13 +98,18 @@ public final class Constants {
 	}
 
 	public static final class PivotConstants {
-		public static final double PIVOT_VOLTAGE = 20;
-		public static final double PIVOT_ANGLE_POS_1 = 158;
-		public static final double PIVOT_ANGLE_POS_2 = 0;
-		public static final double PIVOT_ANGLE_POS_3 = 64;
-		public static final double PIVOT_ANGLE_POS_4 = -55;
-		public static final double PIVOT_ANGLE_POS_5 = 66;
-		public static final double PIVOT_ANGLE_POS_6 = -21;
+		public static final double PIVOT_P = 29;
+		public static final double PIVOT_I = 0;
+		public static final double PIVOT_D = 0;
+
+		public static final double PIVOT_kS = 0.4;
+		public static final double PIVOT_kG = 0.67;
+		public static final double PIVOT_kV = 0.2;
+		public static final double PIVOT_kA = 0;
+
+		public static final double PIVOT_HOME_POSITION = Units.degreesToRotations(55);
+
+		public static final double PIVOT_GEAR_RATIO = 14;
 	}
 
 	public static final class OperatorConstants {
@@ -120,6 +127,7 @@ public final class Constants {
 		public static final int CLIMB_kS = 0;
 		public static final int CLIMB_POS = 0;
 		public static final int CLIMB_POS_RETRACT = 0;
+		public static final double POSITION_TOLERANCE = 0;
 
 	}
 
@@ -152,7 +160,7 @@ public final class Constants {
 				new CameraParams(cameraNames[0], vehicleToCameras[2]),
 				new CameraParams(cameraNames[3], vehicleToCameras[3]));
 
-		public static final AprilTagFields tagLayout = AprilTagFields.k2025Reefscape;
+		public static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
 	}
 
