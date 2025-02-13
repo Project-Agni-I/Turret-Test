@@ -1,11 +1,23 @@
 package frc.robot.subsystems.intake;
 
+import org.littletonrobotics.junction.AutoLog;
+
 public interface IntakeIO {
 
-	void setAlgaeMotorSpeed(double speed);
+	@AutoLog
+	public static class IntakeIOInputs {
+		public double algaeMotorSpeed = 0.0;
+		public double coralMotorSpeed = 0.0;
+		public double topRollerMotorSpeed = 0.0;
 
-	void setCoralMotorSpeed(double speed);
+		public boolean coralSensed = false;
+		public double algaeCurrent = 0.0;
+	}
 
-	void setCombinationMotorSpeed(double speed);
+	public default void updateInputs(IntakeIOInputs inputs) {
+	}
+
+	public default void setSpeeds(double speed1, double speed2, double speed3) {
+	}
 
 }

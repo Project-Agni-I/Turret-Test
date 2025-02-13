@@ -1,4 +1,4 @@
-package frc.robot.subsystems.Pivot;
+package frc.robot.subsystems.pivot;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -9,8 +9,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.MotorConstants;
-import frc.robot.Constants.PivotConstants;
-import frc.robot.subsystems.Pivot.PivotIO.PivotIOInputs;
+import frc.robot.subsystems.pivot.PivotIOInputsAutoLogged;
+import frc.robot.subsystems.pivot.PivotConstants;
+import frc.robot.subsystems.pivot.PivotIO.PivotIOInputs;
 
 public class Pivot extends SubsystemBase {
 	private final PivotIO io;
@@ -30,8 +31,10 @@ public class Pivot extends SubsystemBase {
 		io.setPivotPosition(targetPositionPivot);
 
 		Logger.recordOutput("pivot/targetPos", targetPositionPivot);
-		Logger.recordOutput("pivot/currentPos", inputs.position);
-		Logger.recordOutput("pivot/voltage", inputs.voltage);
+	}
+
+	public void setTargetPos(double pos) {
+		targetPositionPivot = pos;
 	}
 
 }

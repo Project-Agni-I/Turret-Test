@@ -16,9 +16,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AkitDriveCommands;
-import frc.robot.subsystems.Pivot.Pivot;
-import frc.robot.subsystems.Pivot.PivotIOReal;
-import frc.robot.subsystems.Pivot.PivotIOSim;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.climb.ClimbIOReal;
 import frc.robot.subsystems.climb.ClimbIOSim;
@@ -35,6 +32,10 @@ import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIOReal;
 import frc.robot.subsystems.intake.IntakeIOSim;
+import frc.robot.subsystems.intake.Intake.IntakeState;
+import frc.robot.subsystems.pivot.Pivot;
+import frc.robot.subsystems.pivot.PivotIOReal;
+import frc.robot.subsystems.pivot.PivotIOSim;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonReal;
 import frc.robot.subsystems.vision.VisionIOPhotonSim;
@@ -45,7 +46,7 @@ public class RobotContainer {
 	private final VisionLocalizer vision;
 	// private final Climb climb;
 	// private final Elevator elevator;
-	// private final Intake intake;
+	private final Intake intake;
 	// private final Pivot pivot;
 
 	private final CommandXboxController controller = new CommandXboxController(0);
@@ -67,7 +68,7 @@ public class RobotContainer {
 						new VisionIOPhotonReal(VisionConstants.cameraNames[0], VisionConstants.vehicleToCameras[0]));
 				// climb = new Climb(new ClimbIOReal());
 				// elevator = new Elevator(new ElevatorIOReal());
-				// intake = new Intake(new IntakeIOReal());
+				intake = new Intake(new IntakeIOReal());
 				// pivot = new Pivot(new PivotIOReal());
 				break;
 
@@ -85,7 +86,7 @@ public class RobotContainer {
 								drive::getPose));
 				// climb = new Climb(new ClimbIOSim());
 				// elevator = new Elevator(new ElevatorIOSim());
-				// intake = new Intake(new IntakeIOSim());
+				intake = new Intake(new IntakeIOSim());
 				// pivot = new Pivot(new PivotIOSim());
 				break;
 
@@ -105,7 +106,7 @@ public class RobotContainer {
 				});
 				// climb = new Climb(new ClimbIOReal());
 				// elevator = new Elevator(new ElevatorIOReal());
-				// intake = new Intake(new IntakeIOReal());
+				intake = new Intake(new IntakeIOReal());
 				// pivot = new Pivot(new PivotIOReal());
 				break;
 		}
@@ -147,7 +148,8 @@ public class RobotContainer {
 								.ignoringDisable(true));
 
 		controller.rightTrigger().whileTrue(
-				AkitDriveCommands.feedforwardCharacterization(drive));
+				intake.setState(IntakeState.INTAKE_ALGAE))
+				.whileFalse(intake.setState(IntakeState.IDLE));
 
 		controller.rightBumper().whileTrue(
 				AkitDriveCommands.wheelRadiusCharacterization(drive));
