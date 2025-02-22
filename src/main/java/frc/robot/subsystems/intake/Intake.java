@@ -24,30 +24,31 @@ public class Intake extends SubsystemBase {
 
 	private final Timer timer = new Timer();
 	private Debouncer currentDebouncer = new Debouncer(0.5, DebounceType.kRising);
-	private boolean algaeIntakeStarted;
+	// private boolean algaeIntakeStarted;
 	private boolean hasAlgae = false;
 
-	public Intake(IntakeIO io) {
-		this.io = io;
-		algaeIntakeStarted = false;
-		timer.reset();
-		timer.start();
-	}
+	// public Intake(IntakeIO io) {
+	// this.io = io;
+	// algaeIntakeStarted = false;
+	// timer.reset();
+	// timer.start();
+	// }
 
 	@Override
 	public void periodic() {
 		io.updateInputs(inputs);
 		Logger.processInputs("intake", inputs);
-		SmartDashboard.putNumber("Amps", inputs.algaeCurrent);
-		SmartDashboard.putBoolean("Current", (currentDebouncer.calculate(inputs.algaeCurrent > 45)));
-		SmartDashboard.putBoolean("Algae", hasAlgae);
+		// SmartDashboard.putNumber("Amps", inputs.algaeCurrent);
+		// SmartDashboard.putBoolean("Current",
+		// (currentDebouncer.calculate(inputs.algaeCurrent > 45)));
+		// SmartDashboard.putBoolean("Algae", hasAlgae);
 
 		switch (state) {
 			case IDLE:
-				io.setSpeeds(0, 0, 0);
-				algaeIntakeStarted = false;
-				hasAlgae = false;
-				break;
+				// io.setSpeeds(0, 0, 0);
+				// algaeIntakeStarted = false;
+				// hasAlgae = false;
+				// break;
 			case INTAKE_CORAL:
 				if (!inputs.coralSensed) {
 					io.setSpeeds(0.9, 0, 0.9);
@@ -56,27 +57,27 @@ public class Intake extends SubsystemBase {
 				}
 				break;
 			case INTAKE_ALGAE:
-				if (!currentDebouncer.calculate(inputs.algaeCurrent > 30)) {
-					io.setSpeeds(0, 0.9, 0.9);
-					algaeIntakeStarted = false;
-					hasAlgae = true;
-				} else {
-					io.setSpeeds(0, 0, 0);
-				}
+				// if (!currentDebouncer.calculate(inputs.algaeCurrent > 30)) {
+				// io.setSpeeds(0, 0.9, 0.9);
+				// //algaeIntakeStarted = false;
+				// hasAlgae = true;
+				// } else {
+				// io.setSpeeds(0, 0, 0);
+				// }
 				break;
 			case EJECT_CORAL:
 				io.setSpeeds(0, -0.9, 0);
 				break;
-			case EJECT_ALGAE:
-				io.setSpeeds(0, -0.9, -0.9);
-				break;
+			// case EJECT_ALGAE:
+			// io.setSpeeds(0, -0.9, -0.9);
+			// break;
 			case OUTTAKE_CORAL:
 				io.setSpeeds(0, -0.9, -0.9);
 				break;
 		}
 
 		Logger.recordOutput("intake/state", state);
-		Logger.recordOutput("intake/algaeMotorSpeed", inputs.algaeMotorSpeed != 0);
+		// Logger.recordOutput("intake/algaeMotorSpeed", inputs.algaeMotorSpeed != 0);
 		Logger.recordOutput("intake/coralMotorSpeed", inputs.coralMotorSpeed != 0);
 		Logger.recordOutput("intake/topRollerMotorSpeed", inputs.topRollerMotorSpeed != 0);
 	}

@@ -2,56 +2,35 @@ package frc.robot.subsystems.elevator;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.hardware.TalonFX;
-
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.ElevatorPosition;
-import frc.robot.Constants.MotorConstants;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOInputsAutoLogged;
 
 public class Elevator extends SubsystemBase {
-	private TalonFX elevatorMotorLEFT, elevatorMotorRIGHT;
-	private Encoder elevatorEncoder;
-	private PIDController elevatorPIDController;
-	private PositionVoltage position;
-
+	private final ElevatorIO io;
+	private ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 	private double targetPosition;
 
-	public Elevator(ElevatorIO elevatorIO) {
-		elevatorMotorLEFT = new TalonFX(MotorConstants.MOTOR_ELEVATOR_LEFT);
-		elevatorMotorRIGHT = new TalonFX(MotorConstants.MOTOR_ELEVATOR_RIGHT);
-		elevatorEncoder = new Encoder(0, 1);
-		elevatorPIDController = new PIDController(0.1, 0.0, 0.0);
-		targetPosition = ElevatorPosition.LEVEL_1_POSITION;
-		position = new PositionVoltage(0);
-
-		Logger.start();
-		Logger.recordOutput("Elevator/TargetPosition", targetPosition);
-
+	public Elevator(ElevatorIO io) {
+		this.io = io;
+		targetPosition = 0.0;
 	}
-
-	public Command moveElevator(double pos) {
-		return Commands.runOnce(() -> {
-			Logger.recordOutput("ElevatorMotorLeft/MoveToPosition", pos);
-			elevatorMotorLEFT.setControl(position.withPosition(pos));
-			Logger.recordOutput("ElevatorMotorRight/MoveToPosition", pos);
-			elevatorMotorRIGHT.setControl(position.withPosition(pos));
-			Logger.recordOutput("Elevator/EncoderPosition", elevatorEncoder.getDistance());
-
-		});
-
-	}
-
-	@Override
 
 	public void periodic() {
-		Logger.recordOutput("Elevator/CurrentPosition", elevatorEncoder.getDistance());
-		Logger.recordOutput("Elevator/Speed", elevatorEncoder.getRate());
+		SmartDashboard.putNumber("elevator/position", inputs.position);
+		SmartDashboard.putNumber("elevator/voltage", inputs.voltage);
 
+		io.updateInputs(inputs);
+		Logger.processInputs("elevator", inputs);
+
+		io.setElevatorPosition(targetPosition);
+
+		Logger.recordOutput("elevator/targetPos", targetPosition);
+	}
+
+	public void setTargetPos(double pos) {
+		targetPosition = pos;
 	}
 
 }

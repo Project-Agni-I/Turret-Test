@@ -17,4 +17,10 @@ public final class PivotConstants {
 	public static final double PIVOT_GEAR_RATIO = 14;
 
 	public static final int PIVOT_MOTOR_ID = 4;
+	public static final double POSITION_1 = 0;
+	public static final double POSITION_2 = 0;
+	public static final double POSITION_3 = 0;
+	public static final double POSITION_4 = 0;
+	public static final double POSITION_5 = 0;
+	public static final double POSITION_6 = 0;
 }

@@ -1,27 +1,32 @@
 package frc.robot.subsystems.climb;
 
-import edu.wpi.first.wpilibj.simulation.EncoderSim;
-import edu.wpi.first.wpilibj.Encoder;
-import frc.robot.Constants;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ClimbIOSim implements ClimbIO {
-
-	private final EncoderSim climbEncoderSim;
+	private double climbPosition;
 
 	public ClimbIOSim() {
-		climbEncoderSim = new EncoderSim(new Encoder(0, 1));
+
+		climbPosition = 0.0;
+
+		SmartDashboard.putNumber("Climb/Position", climbPosition);
+	}
+
+	public void updateInputs(ClimbIOInputs inputs) {
+		inputs.climbPosition = climbPosition;
+
+		SmartDashboard.putNumber("Climb/Position", climbPosition);
 	}
 
 	public void setClimbPosition(double position) {
-		climbEncoderSim.setDistance(position);
+
+		climbPosition = position;
+
 	}
 
-	public double getClimbPosition() {
-		return climbEncoderSim.getDistance();
-	}
+	public class ClimbIOInputs {
 
-	public boolean isClimbAtTarget() {
-		return Math.abs(climbEncoderSim.getDistance()
-				- Constants.ClimbConstants.CLIMB_POS) < Constants.ClimbConstants.POSITION_TOLERANCE;
+		public double climbPosition;
+
 	}
 }

@@ -1,37 +1,31 @@
 package frc.robot.subsystems.elevator;
 
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.simulation.EncoderSim;
-import frc.robot.Constants;
+import org.littletonrobotics.junction.Logger;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ElevatorIOSim implements ElevatorIO {
 
-	private final EncoderSim ElevatorEncoderSim;
+	private double elevatorPosition = 0.0;
+	private double elevatorVoltage = 0.0;
 
 	public ElevatorIOSim() {
-		ElevatorEncoderSim = new EncoderSim(new Encoder(0, 1));
+
+		elevatorPosition = ElevatorConstants.LEVEL_1_POSITION;
+		elevatorVoltage = 0.0;
 	}
 
-	public void setElevatorPosition(double position) {
-		ElevatorEncoderSim.setDistance(position);
+	public void updateInputs(ElevatorIOInputs inputs) {
+
+		inputs.position = elevatorPosition;
+		inputs.voltage = elevatorVoltage;
 	}
 
-	public double getElevatorPosition() {
-		return ElevatorEncoderSim.getDistance();
-	}
+	@Override
+	public void setElevatorPosition(double wantedPosition) {
 
-	public boolean isElevatorAtTarget() {
-		return (Math.abs(ElevatorEncoderSim.getDistance()
-				- Constants.ElevatorPosition.LEVEL_1_POSITION) < Constants.ElevatorPosition.ELEVATOR_POSITION_TOLERANCE)
-				||
-				(Math.abs(ElevatorEncoderSim.getDistance()
-						- Constants.ElevatorPosition.LEVEL_2_POSITION) < Constants.ElevatorPosition.ELEVATOR_POSITION_TOLERANCE)
-				||
-				(Math.abs(ElevatorEncoderSim.getDistance()
-						- Constants.ElevatorPosition.LEVEL_3_POSITION) < Constants.ElevatorPosition.ELEVATOR_POSITION_TOLERANCE)
-				||
-				(Math.abs(ElevatorEncoderSim.getDistance()
-						- Constants.ElevatorPosition.LEVEL_4_POSITION) < Constants.ElevatorPosition.ELEVATOR_POSITION_TOLERANCE);
-	}
+		elevatorPosition = Math.min(Math.max(wantedPosition, 0.0), ElevatorConstants.LEVEL_1_POSITION);
 
+		elevatorVoltage = 0.5 * elevatorPosition;
+	}
 }
