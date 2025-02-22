@@ -58,15 +58,6 @@ public final class Constants {
 		REPLAY
 	}
 
-	public static final class ElevatorPosition {
-		public static final double LEVEL_1_POSITION = 2;
-		public static final double LEVEL_2_POSITION = 2;
-		public static final double LEVEL_3_POSITION = 2;
-		public static final double LEVEL_4_POSITION = 2;
-		public static final double ELEVATOR_POSITION_TOLERANCE = 0;
-
-	}
-
 	public static final class MotorConstants {
 		public static final int MOTOR_ELEVATOR_LEFT = 1;
 		public static final int MOTOR_ELEVATOR_RIGHT = 2;
@@ -100,20 +91,6 @@ public final class Constants {
 	public static final class OperatorConstants {
 		public static final int DRIVER_CONTROLLER_PORT = 1;
 		public static final int OPERATOR_CONTROLLER_PORT = 0;
-	}
-
-	public static final class ClimbConstants {
-		public static final int CLIMB_P = 0;
-		public static final int CLIMB_I = 0;
-		public static final int CLIMB_D = 0;
-		public static final int CLIMB_kG = 0;
-		public static final int CLIMB_kA = 0;
-		public static final int CLIMB_kV = 0;
-		public static final int CLIMB_kS = 0;
-		public static final int CLIMB_POS = 0;
-		public static final int CLIMB_POS_RETRACT = 0;
-		public static final double POSITION_TOLERANCE = 0;
-
 	}
 
 	public static final class VisionConstants {

@@ -16,7 +16,7 @@ import frc.robot.Constants.MotorConstants;
 
 public class IntakeIOReal implements IntakeIO {
 
-	private final SparkMax algaeMotor;
+	// private final SparkMax algaeMotor;
 	private final SparkMax coralMotor;
 	private final SparkMax topRollerMotor;
 	private final SparkMaxConfig config;
@@ -26,7 +26,8 @@ public class IntakeIOReal implements IntakeIO {
 	private DigitalInput laserBreak;
 
 	public IntakeIOReal() {
-		algaeMotor = new SparkMax(IntakeConstants.ALGAE_MOTOR_ID, MotorType.kBrushless);
+		// algaeMotor = new SparkMax(IntakeConstants.ALGAE_MOTOR_ID,
+		// MotorType.kBrushless);
 		coralMotor = new SparkMax(IntakeConstants.CORAL_MOTOR_ID, MotorType.kBrushless);
 		topRollerMotor = new SparkMax(IntakeConstants.TOP_ROLLER_MOTOR_ID, MotorType.kBrushless);
 		config = new SparkMaxConfig();
@@ -39,18 +40,18 @@ public class IntakeIOReal implements IntakeIO {
 
 	@Override
 	public void updateInputs(IntakeIOInputs inputs) {
-		inputs.algaeMotorSpeed = algaeMotor.get();
+		// inputs.algaeMotorSpeed = algaeMotor.get();
 		inputs.coralMotorSpeed = coralMotor.get();
 		inputs.topRollerMotorSpeed = topRollerMotor.get();
 
 		inputs.coralSensed = !laserBreak.get();
-		inputs.algaeCurrent = currentFilter.calculate(algaeMotor.getOutputCurrent());
+		// inputs.algaeCurrent = currentFilter.calculate(algaeMotor.getOutputCurrent());
 	}
 
 	@Override
 	public void setSpeeds(double coralSpeed, double algaeSpeed, double topRollerSpeed) {
 		coralMotor.set(coralSpeed);
-		algaeMotor.set(algaeSpeed);
+		// algaeMotor.set(algaeSpeed);
 		topRollerMotor.set(topRollerSpeed);
 	}
 

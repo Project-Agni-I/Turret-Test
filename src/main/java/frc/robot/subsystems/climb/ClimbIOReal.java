@@ -1,43 +1,59 @@
 package frc.robot.subsystems.climb;
 
-import com.ctre.phoenix6.controls.PositionVoltage;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import edu.wpi.first.wpilibj.Encoder;
-import frc.robot.Constants;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import frc.robot.Constants.MotorConstants;
 
-public class ClimbIOReal implements ClimbIO {
+public class ClimbIOReal extends SubsystemBase implements ClimbIO {
 
-	private final TalonFX climbMotor;
-	private final Encoder climbEncoder;
+	public final TalonFX climbMotor;
 	private double targetPositionInRotations;
+	private TalonFXConfiguration climbMotorConfig;
+	private MotionMagicExpoVoltage motionMagicVoltage;
+	private MotionMagicConfigs motionMagicConfigs;
 
 	public ClimbIOReal() {
 		climbMotor = new TalonFX(MotorConstants.CLIMB_MOTOR_ID);
-		climbEncoder = new Encoder(0, 1);
+		climbMotorConfig = new TalonFXConfiguration();
+
+		climbMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+		climbMotorConfig.Slot0.kP = ClimbConstants.CLIMB_P;
+		climbMotorConfig.Slot0.kI = ClimbConstants.CLIMB_I;
+		climbMotorConfig.Slot0.kD = ClimbConstants.CLIMB_D;
+		climbMotorConfig.Slot0.kG = ClimbConstants.CLIMB_kG;
+		climbMotorConfig.Slot0.kA = ClimbConstants.CLIMB_kA;
+		climbMotorConfig.Slot0.kV = ClimbConstants.CLIMB_kV;
+		climbMotorConfig.Slot0.kS = ClimbConstants.CLIMB_kS;
+
+		motionMagicVoltage = new MotionMagicExpoVoltage(0);
+		motionMagicVoltage.EnableFOC = true;
+
+		motionMagicConfigs = climbMotorConfig.MotionMagic;
+		motionMagicConfigs.MotionMagicExpo_kA = 1;
+		motionMagicConfigs.MotionMagicExpo_kV = ClimbConstants.CLIMB_kV;
+
+		climbMotor.getConfigurator().apply(climbMotorConfig);
+
+		climbMotor.setPosition(ClimbConstants.CLIMB_HOME_POSITION);
+
 		targetPositionInRotations = 0.0;
 	}
 
-	public static double convertDegreesToRotations(double degrees) {
-		return degrees / 360.0;
+	public void updateInputs(ClimbIOInputs inputs) {
+		inputs.position = climbMotor.getPosition().getValueAsDouble();
+		inputs.voltage = climbMotor.getMotorVoltage().getValueAsDouble();
 	}
 
-	@Override
-	public void setClimbPosition(double wantedPosition) {
-		targetPositionInRotations = convertDegreesToRotations(wantedPosition);
-		PositionVoltage positionVoltage = new PositionVoltage(targetPositionInRotations);
-		climbMotor.setControl(positionVoltage);
+	public void setClimbPosition(double position) {
+		climbMotor.setControl(motionMagicVoltage.withPosition(position));
 	}
 
-	@Override
-	public double getClimbPosition() {
-		return climbEncoder.getDistance();
-	}
-
-	@Override
-	public boolean isClimbAtTarget() {
-		double currentPosition = getClimbPosition();
-		double targetPositionInDegrees = targetPositionInRotations * 360.0;
-		return Math.abs(currentPosition - targetPositionInDegrees) < Constants.ClimbConstants.POSITION_TOLERANCE;
+	public double getPosition() {
+		return climbMotor.getPosition().getValueAsDouble();
 	}
 }

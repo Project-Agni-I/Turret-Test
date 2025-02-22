@@ -1,25 +1,34 @@
 package frc.robot.subsystems.pivot;
 
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.simulation.EncoderSim;
-import frc.robot.Constants;
-import frc.robot.subsystems.pivot.PivotConstants;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class PivotIOSim implements PivotIO {
-	private double currentPosInRotations;
+	private double pivotMotorSpeed;
+	private double pivotPosition;
 
 	public PivotIOSim() {
-		currentPosInRotations = PivotConstants.PIVOT_HOME_POSITION;
+		pivotMotorSpeed = 0.0;
+		pivotPosition = 0.0;
+
+		SmartDashboard.putNumber("Pivot/Position", pivotPosition);
 	}
 
-	@Override
 	public void updateInputs(PivotIOInputs inputs) {
-		inputs.position = currentPosInRotations;
-		inputs.voltage = 0;
+		inputs.pivotMotorSpeed = pivotMotorSpeed;
+		inputs.pivotPosition = pivotPosition;
+
+		SmartDashboard.putNumber("Pivot/Position", pivotPosition);
 	}
 
-	@Override
 	public void setPivotPosition(double position) {
-		currentPosInRotations = position;
+		pivotPosition = position;
+
+		pivotMotorSpeed = Math.signum(position) * 0.5;
+
+	}
+
+	public static class PivotIOInputs {
+		public double pivotMotorSpeed;
+		public double pivotPosition;
 	}
 }

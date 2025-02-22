@@ -3,14 +3,12 @@ package frc.robot.subsystems.pivot;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.wpilibj.Encoder;
 import frc.robot.Constants;
-import frc.robot.Constants.MotorConstants;
+import frc.robot.subsystems.pivot.PivotIO;
 import frc.robot.subsystems.pivot.PivotConstants;
 
 public class PivotIOReal implements PivotIO {
