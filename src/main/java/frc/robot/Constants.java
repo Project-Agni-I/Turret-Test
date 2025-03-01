@@ -1,33 +1,5 @@
 package frc.robot;
 
-import com.ctre.phoenix6.hardware.Pigeon2;
-
-import java.util.List;
-
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.Pigeon2Configuration;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.swerve.*;
-import com.ctre.phoenix6.swerve.SwerveModuleConstants.ClosedLoopOutputType;
-import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerFeedbackType;
-
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -58,72 +30,8 @@ public final class Constants {
 		REPLAY
 	}
 
-	public static final class MotorConstants {
-		public static final int MOTOR_ELEVATOR_LEFT = 1;
-		public static final int MOTOR_ELEVATOR_RIGHT = 2;
-		public static final int MOTOR_ALGAE_ID = 3;
-		public static final int MOTOR_COMBINATION_ID = 4;
-		public static final int MOTOR_CORAL1_ID = 5;
-		public static final int MOTOR_PIVOT_ID = 6;
-		public static final int CLIMB_MOTOR_ID = 7;
-
-	}
-
-	public static final class CombinationConstants {
-		public static final double COMBINATION_INTAKE_MOTOR_SPEED = .5;
-		public static final double COMBINATION_STOP_MOTOR_SPEED = 0;
-		public static final double COMBINATION_OUTTAKE_MOTOR_SPEED = -.5;
-	}
-
-	public static final class AlgaeConstants {
-		public static final double ALGAE_INTAKE_MOTOR_SPEED = .5;
-		public static final double ALGAE_STOP_MOTOR_SPEED = 0;
-		public static final double ALGAE_OUTTAKE_MOTOR_SPEED = -.5;
-	}
-
-	public static final class CoralConstants {
-		public static final double CORAL_INTAKE_MOTOR_SPEED = .5;
-		public static final double CORAL_STOP_MOTOR_SPEED = 0;
-		public static final double CORAL_OUTTAKE_MOTOR_SPEED = -.5;
-
-	}
-
-	public static final class OperatorConstants {
-		public static final int DRIVER_CONTROLLER_PORT = 1;
-		public static final int OPERATOR_CONTROLLER_PORT = 0;
-	}
-
-	public static final class VisionConstants {
-
-		public static record CameraParams(
-				String name,
-				Transform3d transforms) {
-		};
-
-		public static final String[] cameraNames = {
-				"FL",
-				"FR",
-				"BL",
-				"BR"
-		};
-
-		public static final Transform3d[] vehicleToCameras = { // 10 deg yaw, 5 deg pitch
-				new Transform3d(new Translation3d(Units.inchesToMeters(6.5), Units.inchesToMeters(11.75),
-						Units.inchesToMeters(25.5)), new Rotation3d(0, 0, 0)), // Fl
-				new Transform3d(new Translation3d(Units.inchesToMeters(6.5), Units.inchesToMeters(-11.75),
-						Units.inchesToMeters(25.5)), new Rotation3d(0, 0, 0)), // FR
-				new Transform3d(new Translation3d(Units.inchesToMeters(-13.5), Units.inchesToMeters(10), // BL
-						Units.inchesToMeters(20.6666666666)), new Rotation3d(0, 0, Units.degreesToRadians(-180))),
-				new Transform3d(new Translation3d(Units.inchesToMeters(-13.5), Units.inchesToMeters(-10), // BR
-						Units.inchesToMeters(20.66666666)), new Rotation3d(0, 0, Units.degreesToRadians(-180)))
-		};
-
-		public static final List<CameraParams> cameras = List.of(
-				new CameraParams(cameraNames[0], vehicleToCameras[2]),
-				new CameraParams(cameraNames[3], vehicleToCameras[3]));
-
-		public static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
-
+	public final class OperatorConstants {
+		public static final int OPERATOR_CONTROLLER_PORT = 1;
 	}
 
 }

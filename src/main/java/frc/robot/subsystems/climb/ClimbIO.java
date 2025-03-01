@@ -6,14 +6,22 @@ public interface ClimbIO {
 
 	@AutoLog
 	public static class ClimbIOInputs {
-		public double position = 0.0;
-		public double voltage = 0.0;
+		public double position = ClimbConstants.CLIMB_HOME_POSITION;
+
 	}
 
-	public default void updateInputs(ClimbIOInputsAutoLogged inputs) {
+	public default void updateInputs(ClimbIOInputs inputs) {
 	}
 
 	public default void setClimbPosition(double wantedPosition) {
 	}
 
+	public default void runManualUp() {
+	}
+
+	public default void runManualDown() {
+	}
+
+	public default void stop() {
+	}
 }

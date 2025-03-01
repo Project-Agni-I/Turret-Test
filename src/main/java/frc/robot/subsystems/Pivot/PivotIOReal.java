@@ -5,8 +5,10 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 import frc.robot.subsystems.pivot.PivotIO;
 import frc.robot.subsystems.pivot.PivotConstants;
@@ -33,28 +35,32 @@ public class PivotIOReal implements PivotIO {
 		pivotMotorConfig.Slot0.kS = PivotConstants.PIVOT_kS;
 		pivotMotorConfig.Feedback.SensorToMechanismRatio = PivotConstants.PIVOT_GEAR_RATIO;
 
+		pivotMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+		pivotMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+		pivotMotorConfig.CurrentLimits.StatorCurrentLimit = 80;
+
 		motionMagicVoltage = new MotionMagicExpoVoltage(0);
 		motionMagicVoltage.EnableFOC = true;
 
 		motionMagicConfigs = pivotMotorConfig.MotionMagic;
-		motionMagicConfigs.MotionMagicExpo_kA = 1;
+		motionMagicConfigs.MotionMagicExpo_kA = 0.1;
 		motionMagicConfigs.MotionMagicExpo_kV = PivotConstants.PIVOT_kV;
 
 		pivotMotor.getConfigurator().apply(pivotMotorConfig);
 
-		pivotMotor.setPosition(PivotConstants.PIVOT_HOME_POSITION);
+		pivotMotor.setPosition(Units.degreesToRotations(PivotConstants.PIVOT_HOME_POSITION));
 
 		targetPositionInRotations = 0.0;
 	}
 
 	@Override
 	public void updateInputs(PivotIOInputs inputs) {
-		inputs.position = pivotMotor.getPosition().getValueAsDouble();
-		inputs.voltage = pivotMotor.getMotorVoltage().getValueAsDouble();
+		inputs.position = Units.rotationsToDegrees(pivotMotor.getPosition().getValueAsDouble());
 	}
 
 	@Override
 	public void setPivotPosition(double wantedPosition) {
-		pivotMotor.setControl(motionMagicVoltage.withPosition(wantedPosition));
+		pivotMotor.setControl(motionMagicVoltage.withPosition(Units.degreesToRotations(wantedPosition)));
 	}
 }

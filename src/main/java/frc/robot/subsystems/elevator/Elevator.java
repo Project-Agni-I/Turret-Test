@@ -3,6 +3,8 @@ package frc.robot.subsystems.elevator;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOInputsAutoLogged;
@@ -18,19 +20,28 @@ public class Elevator extends SubsystemBase {
 	}
 
 	public void periodic() {
-		SmartDashboard.putNumber("elevator/position", inputs.position);
-		SmartDashboard.putNumber("elevator/voltage", inputs.voltage);
-
 		io.updateInputs(inputs);
 		Logger.processInputs("elevator", inputs);
 
 		io.setElevatorPosition(targetPosition);
 
 		Logger.recordOutput("elevator/targetPos", targetPosition);
+		Logger.recordOutput("elevator/currentPosition", inputs.position);
 	}
 
-	public void setTargetPos(double pos) {
-		targetPosition = pos;
+	public Command setTargetPos(double pos) {
+		return Commands.runOnce(() -> targetPosition = pos);
 	}
 
+	public Command runUp() {
+		return Commands.runEnd(() -> io.runManualUp(), () -> io.stop());
+	}
+
+	public Command runDown() {
+		return Commands.runEnd(() -> io.runManualDown(), () -> io.stop());
+	}
+
+	public Command stop() {
+		return Commands.runEnd(() -> io.stop(), () -> io.stop());
+	}
 }
