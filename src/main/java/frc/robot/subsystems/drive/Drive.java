@@ -16,6 +16,9 @@ package frc.robot.subsystems.drive;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -59,6 +62,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.util.LocalADStarAK;
 
 public class Drive extends SubsystemBase {
@@ -114,6 +118,8 @@ public class Drive extends SubsystemBase {
 	private final SwerveSetpointGenerator setpointGenerator;
 	private SwerveSetpoint previousSetpoint;
 
+	private final List<Pose2d> alignPositions;
+
 	public Drive(
 			GyroIO gyroIO,
 			ModuleIO flModuleIO,
@@ -166,6 +172,16 @@ public class Drive extends SubsystemBase {
 
 		setpointGenerator = new SwerveSetpointGenerator(PP_CONFIG, Math.PI * 2);
 		previousSetpoint = new SwerveSetpoint(getChassisSpeeds(), getModuleStates(), DriveFeedforwards.zeros(4));
+
+		alignPositions = new ArrayList<>();
+		int[] a = { 6, 7, 8, 9, 10, 11,
+				17, 18, 19, 20, 21, 22 };
+		for (var tag : VisionConstants.aprilTagLayout.getTags()) {
+			if (Arrays.stream(a).anyMatch(x -> x == tag.ID)) {
+				alignPositions.add(new Pose2d(tag.pose.toPose2d().getTranslation(),
+						tag.pose.toPose2d().getRotation().rotateBy(Rotation2d.k180deg)));
+			}
+		}
 	}
 
 	@Override
@@ -231,26 +247,24 @@ public class Drive extends SubsystemBase {
 	 * @param speeds
 	 *            Speeds in meters/sec
 	 */
+
 	public void runVelocity(ChassisSpeeds speeds) {
 		// Calculate module setpoints
 		ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
-		SwerveModuleState[] setpointStatesUnoptimized = kinematics.toSwerveModuleStates(discreteSpeeds);
-		previousSetpoint = setpointGenerator.generateSetpoint(
-				previousSetpoint,
-				discreteSpeeds,
-				0.02);
-		SwerveModuleState[] setpointStates = previousSetpoint.moduleStates();
+		SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
+		SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
 
 		// Log unoptimized setpoints and setpoint speeds
-		Logger.recordOutput("SwerveStates/Setpoints", setpointStatesUnoptimized);
+		Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
 		Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
-		// Log optimized setpoints (runSetpoint mutates each state)
-		Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
 
 		// Send setpoints to modules
 		for (int i = 0; i < 4; i++) {
 			modules[i].runSetpoint(setpointStates[i]);
 		}
+
+		// Log optimized setpoints (runSetpoint mutates each state)
+		Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
 	}
 
 	/** Runs the drive in a straight line with the specified drive output. */
@@ -319,7 +333,7 @@ public class Drive extends SubsystemBase {
 
 	/** Returns the measured chassis speeds of the robot. */
 	@AutoLogOutput(key = "SwerveChassisSpeeds/Measured")
-	private ChassisSpeeds getChassisSpeeds() {
+	public ChassisSpeeds getChassisSpeeds() {
 		return kinematics.toChassisSpeeds(getModuleStates());
 	}
 
@@ -387,5 +401,17 @@ public class Drive extends SubsystemBase {
 				new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
 				new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
 		};
+	}
+
+	public Pose2d findClosestNode() {
+		System.out.println("X");
+		for (int i = alignPositions.size(); i < 6; i++) {
+			Logger.recordOutput("Vision/ReefFaces" + i, alignPositions.get(i));
+		}
+
+		Pose2d currentPose = this.getPose();
+		Pose2d goal = currentPose.nearest(alignPositions);
+		Logger.recordOutput("Vision/GoalPose", goal);
+		return goal;
 	}
 }

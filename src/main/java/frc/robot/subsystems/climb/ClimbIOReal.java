@@ -1,13 +1,14 @@
 package frc.robot.subsystems.climb;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.pivot.PivotIO.PivotIOInputs;
+
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
-import frc.robot.Constants.MotorConstants;
 
 public class ClimbIOReal extends SubsystemBase implements ClimbIO {
 
@@ -18,7 +19,7 @@ public class ClimbIOReal extends SubsystemBase implements ClimbIO {
 	private MotionMagicConfigs motionMagicConfigs;
 
 	public ClimbIOReal() {
-		climbMotor = new TalonFX(MotorConstants.CLIMB_MOTOR_ID);
+		climbMotor = new TalonFX(ClimbConstants.CLIMB_MOTOR_ID);
 		climbMotorConfig = new TalonFXConfiguration();
 
 		climbMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -44,16 +45,30 @@ public class ClimbIOReal extends SubsystemBase implements ClimbIO {
 		targetPositionInRotations = 0.0;
 	}
 
+	@Override
 	public void updateInputs(ClimbIOInputs inputs) {
-		inputs.position = climbMotor.getPosition().getValueAsDouble();
-		inputs.voltage = climbMotor.getMotorVoltage().getValueAsDouble();
+		inputs.position = Units.rotationsToDegrees(climbMotor.getPosition().getValueAsDouble());
 	}
 
-	public void setClimbPosition(double position) {
-		climbMotor.setControl(motionMagicVoltage.withPosition(position));
+	@Override
+	public void setClimbPosition(double wantedPosition) {
+		climbMotor.setControl(motionMagicVoltage.withPosition(Units.degreesToRotations(wantedPosition)));
 	}
 
-	public double getPosition() {
-		return climbMotor.getPosition().getValueAsDouble();
+	@Override
+	public void runManualUp() {
+		climbMotor.set(0.8);
+	}
+
+	@Override
+	public void stop() {
+		climbMotor.set(0);
+
+	}
+
+	@Override
+	public void runManualDown() {
+		climbMotor.set(-0.8);
+
 	}
 }

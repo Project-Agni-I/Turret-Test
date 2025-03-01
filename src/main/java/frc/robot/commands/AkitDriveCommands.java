@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
+
 public class AkitDriveCommands {
 	private static final double DEADBAND = 0.1;
 	private static final double ANGLE_KP = 5.0;
@@ -210,6 +212,9 @@ public class AkitDriveCommands {
 									}
 									double kS = (sumY * sumX2 - sumX * sumXY) / (n * sumX2 - sumX * sumX);
 									double kV = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+
+									Logger.recordOutput("Tested kS", kS);
+									Logger.recordOutput("Tested kV", kV);
 
 									NumberFormat formatter = new DecimalFormat("#0.00000");
 									System.out.println("********** Drive FF Characterization Results **********");

@@ -9,24 +9,18 @@ public class ClimbIOSim implements ClimbIO {
 
 		climbPosition = 0.0;
 
-		SmartDashboard.putNumber("Climb/Position", climbPosition);
 	}
 
+	@Override
 	public void updateInputs(ClimbIOInputs inputs) {
-		inputs.climbPosition = climbPosition;
+		inputs.position = climbPosition;
 
-		SmartDashboard.putNumber("Climb/Position", climbPosition);
 	}
 
+	@Override
 	public void setClimbPosition(double position) {
 
 		climbPosition = position;
-
-	}
-
-	public class ClimbIOInputs {
-
-		public double climbPosition;
 
 	}
 }

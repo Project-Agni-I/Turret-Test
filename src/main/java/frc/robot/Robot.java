@@ -11,6 +11,8 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import com.pathplanner.lib.commands.PathfindingCommand;
+
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -65,6 +67,8 @@ public class Robot extends LoggedRobot {
 						// be added.
 
 		m_robotContainer = new RobotContainer();
+
+		PathfindingCommand.warmupCommand().schedule();
 	}
 
 	/**
@@ -126,6 +130,7 @@ public class Robot extends LoggedRobot {
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.cancel();
 		}
+		m_robotContainer.teleopInit();
 	}
 
 	/** This function is called periodically during operator control. */

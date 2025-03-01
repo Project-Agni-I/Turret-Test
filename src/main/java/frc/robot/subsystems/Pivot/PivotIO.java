@@ -6,8 +6,7 @@ public interface PivotIO {
 
 	@AutoLog
 	public static class PivotIOInputs {
-		public double position = 0.0;
-		public double voltage = 0.0;
+		public double position = PivotConstants.PIVOT_HOME_POSITION;
 	}
 
 	public default void updateInputs(PivotIOInputs inputs) {

@@ -3,24 +3,27 @@ package frc.robot.subsystems.pivot;
 import edu.wpi.first.math.util.Units;
 
 public final class PivotConstants {
-	public static final double PIVOT_P = 29;
+	public static final double PIVOT_P = 23;
 	public static final double PIVOT_I = 0;
 	public static final double PIVOT_D = 0;
 
-	public static final double PIVOT_kS = 0.4;
-	public static final double PIVOT_kG = 0.67;
-	public static final double PIVOT_kV = 0.2;
+	public static final double PIVOT_kS = 0.43;
+	public static final double PIVOT_kG = 0.3;
+	public static final double PIVOT_kV = 0.8;
 	public static final double PIVOT_kA = 0;
 
-	public static final double PIVOT_HOME_POSITION = Units.degreesToRotations(55);
+	public static final double PIVOT_HOME_POSITION = -110;
 
-	public static final double PIVOT_GEAR_RATIO = 14;
+	public static final double PIVOT_GEAR_RATIO = 44.44;
 
-	public static final int PIVOT_MOTOR_ID = 4;
-	public static final double POSITION_1 = 0;
-	public static final double POSITION_2 = 0;
-	public static final double POSITION_3 = 0;
-	public static final double POSITION_4 = 0;
-	public static final double POSITION_5 = 0;
-	public static final double POSITION_6 = 0;
+	public static final int PIVOT_MOTOR_ID = 12;
+	public static final double POSITION_1 = -110;
+	public static final double POSITION_2 = -110;
+	public static final double POSITION_3 = -110;
+	public static final double POSITION_4 = -95;
+	public static final double GROUND_INTAKE = 36;
+
+	public static final double ALGAE_HOLD = -60;
+	public static final double ALGAE_INTAKE = 70;
+
 }
