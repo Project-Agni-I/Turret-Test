@@ -11,15 +11,19 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorConstants;
 
 public class Intake extends SubsystemBase {
 	private IntakeIO io;
 	private IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
 
 	private IntakeState state = IntakeState.IDLE;
+	private Elevator m_Elevator;
 
-	public Intake(IntakeIO io) {
+	public Intake(IntakeIO io, Elevator elevator) {
 		this.io = io;
+		m_Elevator = elevator;
 	}
 
 	@Override
@@ -40,7 +44,11 @@ public class Intake extends SubsystemBase {
 				}
 				break;
 			case EJECT_CORAL:
-				io.setSpeeds(-0.9);
+				if (m_Elevator.getTargetPose() == ElevatorConstants.LEVEL_4_POSITION) {
+					io.setSpeeds(-0.9);
+				} else {
+					io.setSpeeds(-0.5);
+				}
 				break;
 			case OUTTAKE_CORAL:
 				io.setSpeeds(0.9);

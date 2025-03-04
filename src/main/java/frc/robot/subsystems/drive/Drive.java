@@ -414,4 +414,8 @@ public class Drive extends SubsystemBase {
 		Logger.recordOutput("Vision/GoalPose", goal);
 		return goal;
 	}
+
+	public Rotation2d getHeading() {
+		return gyroInputs.yawPosition;
+	}
 }

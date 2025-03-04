@@ -8,9 +8,12 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.vision.VisionIO.SingleTagObservation;
 
 import java.util.LinkedList;
@@ -28,6 +31,7 @@ public class VisionLocalizer extends SubsystemBase {
 	private final Alert[] disconnectedAlerts;
 	// avoid NullPointerExceptions by setting a default no-op
 	private VisionConsumer consumer;
+	private Drive drive;
 	// private double[] cameraStdDevFactors;
 
 	/**
@@ -45,11 +49,12 @@ public class VisionLocalizer extends SubsystemBase {
 	 *            of each camera, using photon vision or sim
 	 */
 	public VisionLocalizer(
-			VisionConsumer consumer,
+			VisionConsumer consumer, Drive drive,
 			// double[] cameraStdDevFactors,
 			VisionIO... io) {
 		this.consumer = consumer;
 		this.io = io;
+		this.drive = drive;
 		// this.cameraStdDevFactors = cameraStdDevFactors;
 
 		for (int i = 0; i < io.length; i++) {
@@ -199,6 +204,8 @@ public class VisionLocalizer extends SubsystemBase {
 				|| observation.pose().getX() > VisionConstants.aprilTagLayout.getFieldLength()
 				|| observation.pose().getY() < 0.0
 				|| observation.pose().getY() > VisionConstants.aprilTagLayout.getFieldWidth();
+		// || Math.abs(drive.getHeading().getDegrees()
+		// - Units.radiansToDegrees(observation.pose().getRotation().getAngle())) > 2;
 	}
 
 	/**
