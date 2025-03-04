@@ -8,6 +8,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import com.fasterxml.jackson.databind.util.internal.PrivateMaxEntriesMap;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.FileVersionException;
 
@@ -36,10 +37,11 @@ import frc.robot.subsystems.vision.*;
 
 public class RobotContainer {
 	private final Drive drive;
-	private final Climb climb;
+	// private final Climb climb;
 	private final Elevator elevator;
 	private final Intake intake;
 	private final Pivot pivot;
+	private final VisionLocalizer vision;
 	private double offset1 = 0, offset2 = 0;
 
 	private final CommandXboxController controller = new CommandXboxController(0);
@@ -72,10 +74,13 @@ public class RobotContainer {
 						new ModuleIOTalonFX(TunerConstants.FrontRight),
 						new ModuleIOTalonFX(TunerConstants.BackLeft),
 						new ModuleIOTalonFX(TunerConstants.BackRight));
-				climb = new Climb(new ClimbIOReal());
+				// climb = new Climb(new ClimbIOReal());
 				elevator = new Elevator(new ElevatorIOReal());
-				intake = new Intake(new IntakeIOReal());
+				intake = new Intake(new IntakeIOReal(), elevator);
 				pivot = new Pivot(new PivotIOReal());
+				vision = new VisionLocalizer(drive::addVisionMeasurement, drive,
+						new VisionIOPhotonReal(VisionConstants.cameraNames[0], VisionConstants.vehicleToCameras[0]),
+						new VisionIOPhotonReal(VisionConstants.cameraNames[1], VisionConstants.vehicleToCameras[1]));
 				break;
 
 			case SIM:
@@ -86,10 +91,19 @@ public class RobotContainer {
 						new ModuleIOSim(TunerConstants.FrontRight),
 						new ModuleIOSim(TunerConstants.BackLeft),
 						new ModuleIOSim(TunerConstants.BackRight));
-				climb = new Climb(new ClimbIOSim());
+				// climb = new Climb(new ClimbIOSim());
 				elevator = new Elevator(new ElevatorIOSim());
-				intake = new Intake(new IntakeIOSim());
+				intake = new Intake(new IntakeIOSim(), elevator);
 				pivot = new Pivot(new PivotIOSim());
+				vision = new VisionLocalizer(
+						drive::addVisionMeasurement,
+						drive,
+						new VisionIOPhotonSim(VisionConstants.cameraNames[0],
+								VisionConstants.vehicleToCameras[0],
+								drive::getPose),
+						new VisionIOPhotonSim(VisionConstants.cameraNames[0],
+								VisionConstants.vehicleToCameras[0], drive::getPose));
+
 				break;
 
 			default:
@@ -104,29 +118,31 @@ public class RobotContainer {
 						},
 						new ModuleIO() {
 						});
-				climb = new Climb(new ClimbIO() {
-				});
+				// climb = new Climb(new ClimbIO() {
+				// });
 				elevator = new Elevator(new ElevatorIO() {
 				});
 				intake = new Intake(new IntakeIO() {
-				});
+				}, elevator);
 				pivot = new Pivot(new PivotIO() {
+				});
+				vision = new VisionLocalizer(drive::addVisionMeasurement, drive, new VisionIO() {
 				});
 		}
 
 		NamedCommands.registerCommand("L4",
 				Commands.sequence(
-						Commands.parallel(
-								elevator.setTargetPos(ElevatorConstants.LEVEL_4_POSITION),
-								pivot.setTargetPos(PivotConstants.POSITION_4)),
-						Commands.waitSeconds(1.5),
-						Commands.race(
-								intake.setState(IntakeState.EJECT_CORAL),
-								Commands.waitSeconds(1)),
+						elevator.setTargetPos(ElevatorConstants.LEVEL_4_POSITION),
+						Commands.waitSeconds(0.75),
+						pivot.setTargetPos(PivotConstants.POSITION_4),
+						Commands.waitSeconds(0.5),
+						intake.setState(IntakeState.EJECT_CORAL),
+						Commands.waitSeconds(.5),
 						Commands.parallel(
 								elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION),
-								pivot.setTargetPos(PivotConstants.PIVOT_HOME_POSITION)),
-						Commands.waitSeconds(1.5)));
+								pivot.setTargetPos(PivotConstants.PIVOT_HOME_POSITION),
+								intake.setState(IntakeState.INTAKE_CORAL)),
+						Commands.waitSeconds(0.75)));
 		NamedCommands.registerCommand("Algae Low",
 				Commands.sequence(
 						Commands.parallel(
@@ -194,7 +210,7 @@ public class RobotContainer {
 								pivot.setTargetPos(PivotConstants.PIVOT_HOME_POSITION)));
 
 		controller.x().whileTrue(
-				intake.setState(IntakeState.EJECT_CORAL))
+				intake.setState(IntakeState.INTAKE_CORAL))
 				.onFalse(Commands.parallel(
 						elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION),
 						pivot.setTargetPos(PivotConstants.ALGAE_HOLD)));
@@ -219,8 +235,9 @@ public class RobotContainer {
 						elevator.setTargetPos(ElevatorConstants.LEVEL_3_POSITION),
 						pivot.setTargetPos(PivotConstants.POSITION_3)));
 		BUTTON_4.onTrue(
-				Commands.parallel(
+				Commands.sequence(
 						elevator.setTargetPos(ElevatorConstants.LEVEL_4_POSITION),
+						Commands.waitSeconds(0.75),
 						pivot.setTargetPos(PivotConstants.POSITION_4)));
 
 		BUTTON_8.onTrue(
@@ -246,14 +263,14 @@ public class RobotContainer {
 						Commands.waitSeconds(0.5),
 						pivot.setTargetPos(PivotConstants.ALGAE_INTAKE)));
 
-		BUTTON_13.whileTrue(climb.runUp()).whileFalse(climb.stop());
-		BUTTON_14.whileTrue(climb.runDown()).whileFalse(climb.stop());
+		// BUTTON_13.whileTrue(climb.runUp()).whileFalse(climb.stop());
+		// BUTTON_14.whileTrue(climb.runDown()).whileFalse(climb.stop());
 
 		BUTTON_5.whileTrue(intake.setState(IntakeState.INTAKE_CORAL)).onFalse(intake.setState(IntakeState.IDLE));
 		BUTTON_6.whileTrue(intake.setState(IntakeState.OUTTAKE_CORAL)).onFalse(intake.setState(IntakeState.IDLE));
 		BUTTON_7.whileTrue(intake.setState(IntakeState.EJECT_CORAL)).onFalse(intake.setState(IntakeState.IDLE));
 		BUTTON_15.onTrue(
-				intake.setState(IntakeState.IDLE));
+				NamedCommands.getCommand("L4"));
 
 		controller.rightTrigger().whileTrue(
 				new ReefBranchAlign(drive,
@@ -279,34 +296,7 @@ public class RobotContainer {
 	}
 
 	public void teleopInit() {
-		final VisionLocalizer vision;
-		switch (Constants.currentMode) {
-			case REAL:
-				vision = new VisionLocalizer(
-						drive::addVisionMeasurement,
-						new VisionIOPhotonReal(VisionConstants.cameraNames[0],
-								VisionConstants.vehicleToCameras[0]),
-						new VisionIOPhotonReal(VisionConstants.cameraNames[1],
-								VisionConstants.vehicleToCameras[1]));
-				break;
-
-			case SIM:
-				vision = new VisionLocalizer(
-						drive::addVisionMeasurement,
-						new VisionIOPhotonSim(VisionConstants.cameraNames[0],
-								VisionConstants.vehicleToCameras[0],
-								drive::getPose),
-						new VisionIOPhotonSim(VisionConstants.cameraNames[0],
-								VisionConstants.vehicleToCameras[0], drive::getPose));
-				break;
-
-			default:
-				vision = new VisionLocalizer(drive::addVisionMeasurement, new VisionIO() {
-				});
-		}
 		intake.setState(IntakeState.IDLE);
-		elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION);
-		pivot.setTargetPos(PivotConstants.PIVOT_HOME_POSITION);
 
 		if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue) {
 			offset1 = 0.75;

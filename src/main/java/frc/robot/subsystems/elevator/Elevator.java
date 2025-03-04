@@ -44,4 +44,8 @@ public class Elevator extends SubsystemBase {
 	public Command stop() {
 		return Commands.runEnd(() -> io.stop(), () -> io.stop());
 	}
+
+	public double getTargetPose() {
+		return targetPosition;
+	}
 }
