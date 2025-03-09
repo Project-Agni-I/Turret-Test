@@ -39,9 +39,9 @@ public class ReefBranchAlign extends Command {
 		m_shift = shift;
 		m_joystickInput = joystickXInput;
 
-		m_translationController = new ProfiledPIDController(5.0, 0.0, 0, new TrapezoidProfile.Constraints(2, 2));
+		m_translationController = new ProfiledPIDController(5, 0.0, 0, new TrapezoidProfile.Constraints(3, 3));
 		m_thetaController = new ProfiledPIDController(
-				6.0, 0.0, 0, new TrapezoidProfile.Constraints(1 * Math.PI, 1 * Math.PI));
+				6, 0.0, 0, new TrapezoidProfile.Constraints(1 * Math.PI, 1 * Math.PI));
 		this.m_drivetrain = drivetrain;
 
 		m_drive = new SwerveRequest.ApplyRobotSpeeds()
@@ -57,7 +57,7 @@ public class ReefBranchAlign extends Command {
 
 		Pose2d initialPose = m_drivetrain.getPose();
 		m_translationController.setTolerance(0.05);
-		m_thetaController.setTolerance(Units.degreesToRadians(3));
+		m_thetaController.setTolerance(Units.degreesToRadians(1));
 		m_thetaController.enableContinuousInput(-Math.PI, Math.PI);
 		ChassisSpeeds fieldVelocity = ChassisSpeeds.fromRobotRelativeSpeeds(m_drivetrain.getChassisSpeeds(),
 				initialPose.getRotation());
@@ -125,13 +125,8 @@ public class ReefBranchAlign extends Command {
 				new ChassisSpeeds(driveVelocity.getX(), driveVelocity.getY(), thetaVelocity),
 				currentPose.getRotation());
 
-		if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue) {
-			m_drivetrain.runVelocity(
-					new ChassisSpeeds(m_joystickInput.getAsDouble(), CS.vyMetersPerSecond, CS.omegaRadiansPerSecond));
-		} else {
-			m_drivetrain.runVelocity(
-					new ChassisSpeeds(-m_joystickInput.getAsDouble(), CS.vyMetersPerSecond, CS.omegaRadiansPerSecond));
-		}
+		m_drivetrain
+				.runVelocity(new ChassisSpeeds(CS.vxMetersPerSecond, CS.vyMetersPerSecond, CS.omegaRadiansPerSecond));
 
 		Logger.recordOutput("Drivetrain/DriveToPose/ChassisSpeeds", CS);
 
@@ -150,8 +145,8 @@ public class ReefBranchAlign extends Command {
 
 	@Override
 	public boolean isFinished() {
-		return (Math.abs((m_goalPose.getTranslation().minus(m_drivetrain.getPose().getTranslation())).getX()) < 0.025)
+		return (Math.abs((m_goalPose.getTranslation().minus(m_drivetrain.getPose().getTranslation())).getX()) < 0.05)
 				&&
-				(Math.abs((m_goalPose.getTranslation().minus(m_drivetrain.getPose().getTranslation())).getY()) < 0.025);
+				(Math.abs((m_goalPose.getTranslation().minus(m_drivetrain.getPose().getTranslation())).getY()) < 0.05);
 	}
 }

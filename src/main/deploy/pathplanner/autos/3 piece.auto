@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "algae.0"
+            "pathName": "3 piece.0"
           }
         },
         {
@@ -25,62 +25,61 @@
         {
           "type": "path",
           "data": {
-            "pathName": "algae.1"
+            "pathName": "3 piece.1"
           }
         },
         {
-          "type": "named",
+          "type": "wait",
           "data": {
-            "name": "Algae Low"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "algae.2"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.5
-                }
-              }
-            ]
+            "waitTime": 0.9
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "algae.3"
+            "pathName": "3 piece.2"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Algae Home"
+            "name": "Align Left"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L4"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "algae.4"
+            "pathName": "3 piece.3"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.9
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3 piece.4"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Algae Score"
+            "name": "Align Left"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L4"
           }
         }
       ]

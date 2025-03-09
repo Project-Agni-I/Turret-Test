@@ -36,6 +36,9 @@ public class Intake extends SubsystemBase {
 			case IDLE:
 				io.setSpeeds(0.0);
 				break;
+			case INTAKE_ALGAE:
+				io.setSpeeds(-0.9);
+				break;
 			case INTAKE_CORAL:
 				if (!inputs.coralSensed) {
 					io.setSpeeds(-0.25);
@@ -60,7 +63,7 @@ public class Intake extends SubsystemBase {
 	}
 
 	public enum IntakeState {
-		IDLE, INTAKE_CORAL, EJECT_CORAL, OUTTAKE_CORAL
+		IDLE, INTAKE_CORAL, EJECT_CORAL, OUTTAKE_CORAL, INTAKE_ALGAE
 	}
 
 	public Command setState(IntakeState m_state) {

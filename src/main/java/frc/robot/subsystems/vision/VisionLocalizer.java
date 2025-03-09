@@ -193,12 +193,10 @@ public class VisionLocalizer extends SubsystemBase {
 	 */
 	private boolean shouldRejectPose(VisionIO.PoseObservation observation) {
 		return observation.tagCount() == 0 // Must have at least one tag
-				|| (observation.tagCount() == 1
-						&& observation.ambiguity() > 0.3) // Cannot be high ambiguity if
 				// single tag
 				|| Math.abs(observation.pose().getZ()) > 1.0 // Must have realistic Z coordinate
 				|| observation.averageTagDistance() > 10
-				|| observation.ambiguity() > 0.3
+				|| observation.ambiguity() > 0.16
 				// Must be within the field boundaries
 				|| observation.pose().getX() < 0.0
 				|| observation.pose().getX() > VisionConstants.aprilTagLayout.getFieldLength()
