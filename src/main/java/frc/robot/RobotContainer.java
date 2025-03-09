@@ -42,7 +42,6 @@ public class RobotContainer {
 	private final Intake intake;
 	private final Pivot pivot;
 	private final VisionLocalizer vision;
-	private double offset1 = 0, offset2 = 0;
 
 	private final CommandXboxController controller = new CommandXboxController(0);
 	public static final Joystick operatorControl = new Joystick(Constants.OperatorConstants.OPERATOR_CONTROLLER_PORT);
@@ -130,41 +129,57 @@ public class RobotContainer {
 				});
 		}
 
+		vision.setVisionConsumer(drive::addVisionMeasurement);
+
 		NamedCommands.registerCommand("L4",
 				Commands.sequence(
 						elevator.setTargetPos(ElevatorConstants.LEVEL_4_POSITION),
 						Commands.waitSeconds(0.75),
 						pivot.setTargetPos(PivotConstants.POSITION_4),
-						Commands.waitSeconds(0.5),
+						Commands.waitSeconds(0.25),
 						intake.setState(IntakeState.EJECT_CORAL),
-						Commands.waitSeconds(.5),
+						Commands.waitSeconds(.25),
 						Commands.parallel(
 								elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION),
-								pivot.setTargetPos(PivotConstants.PIVOT_HOME_POSITION),
+								pivot.setTargetPos(PivotConstants.POSITION_1),
 								intake.setState(IntakeState.INTAKE_CORAL)),
-						Commands.waitSeconds(0.75)));
+						Commands.waitSeconds(0.5)));
 		NamedCommands.registerCommand("Algae Low",
 				Commands.sequence(
 						Commands.parallel(
 								elevator.setTargetPos(ElevatorConstants.ALGAE_LOW),
-								pivot.setTargetPos(PivotConstants.ALGAE_INTAKE),
-								Commands.waitSeconds(1.5)),
+								pivot.setTargetPos(PivotConstants.ALGAE_HOLD),
+								Commands.waitSeconds(0.5)),
+						pivot.setTargetPos(PivotConstants.ALGAE_INTAKE),
 						intake.setState(IntakeState.INTAKE_CORAL)));
 		NamedCommands.registerCommand("Intake", Commands.race(
 				intake.runManual(),
 				Commands.waitSeconds(0.5)));
 		NamedCommands.registerCommand("Algae Home", Commands.parallel(
 				elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION),
-				pivot.setTargetPos(PivotConstants.GROUND_INTAKE - 35)));
+				pivot.setTargetPos(PivotConstants.PROCESSOR)));
 		NamedCommands.registerCommand("Algae Score",
 				Commands.sequence(
-						pivot.setTargetPos(PivotConstants.GROUND_INTAKE - 35),
+						pivot.setTargetPos(PivotConstants.PROCESSOR),
 						Commands.waitSeconds(1),
 						Commands.race(
 								intake.setState(IntakeState.OUTTAKE_CORAL),
 								Commands.waitSeconds(1)),
-						pivot.setTargetPos(PivotConstants.PIVOT_HOME_POSITION),
+						pivot.setTargetPos(PivotConstants.POSITION_1),
 						Commands.waitSeconds(1)));
+		NamedCommands.registerCommand("Align Right", Commands.race(
+				new ReefBranchAlign(drive,
+						new Transform2d(Units.inchesToMeters(-16.5), Units.inchesToMeters(-6.5),
+								new Rotation2d()),
+						() -> controller.getLeftY()),
+				Commands.waitSeconds(1)));
+
+		NamedCommands.registerCommand("Align Left", Commands.race(
+				new ReefBranchAlign(drive,
+						new Transform2d(Units.inchesToMeters(-16.5), Units.inchesToMeters(6.5),
+								new Rotation2d()),
+						() -> controller.getLeftY()),
+				Commands.waitSeconds(1)));
 
 		autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -200,17 +215,19 @@ public class RobotContainer {
 								.ignoringDisable(true));
 
 		controller.a().whileTrue(
-				intake.setState(IntakeState.INTAKE_CORAL));
+				Commands.sequence(
+						pivot.setTargetPos(PivotConstants.POSITION_1),
+						intake.setState(IntakeState.INTAKE_CORAL)));
 
 		controller.b().whileTrue(
 				intake.setState(IntakeState.EJECT_CORAL)).onFalse(
 						Commands.parallel(
 								intake.setState(IntakeState.IDLE),
 								elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION),
-								pivot.setTargetPos(PivotConstants.PIVOT_HOME_POSITION)));
+								pivot.setTargetPos(PivotConstants.POSITION_1)));
 
 		controller.x().whileTrue(
-				intake.setState(IntakeState.INTAKE_CORAL))
+				intake.setState(IntakeState.INTAKE_ALGAE))
 				.onFalse(Commands.parallel(
 						elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION),
 						pivot.setTargetPos(PivotConstants.ALGAE_HOLD)));
@@ -220,19 +237,21 @@ public class RobotContainer {
 						Commands.parallel(
 								intake.setState(IntakeState.IDLE),
 								elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION),
-								pivot.setTargetPos(PivotConstants.PIVOT_HOME_POSITION)));
+								pivot.setTargetPos(PivotConstants.POSITION_1)));
 
 		BUTTON_1.onTrue(
 				Commands.parallel(
 						elevator.setTargetPos(ElevatorConstants.LEVEL_1_POSITION),
 						pivot.setTargetPos(PivotConstants.POSITION_1)));
 		BUTTON_2.onTrue(
-				Commands.parallel(
+				Commands.sequence(
 						elevator.setTargetPos(ElevatorConstants.LEVEL_2_POSITION),
+						Commands.waitSeconds(0.15),
 						pivot.setTargetPos(PivotConstants.POSITION_2)));
 		BUTTON_3.onTrue(
-				Commands.parallel(
+				Commands.sequence(
 						elevator.setTargetPos(ElevatorConstants.LEVEL_3_POSITION),
+						Commands.waitSeconds(0.4),
 						pivot.setTargetPos(PivotConstants.POSITION_3)));
 		BUTTON_4.onTrue(
 				Commands.sequence(
@@ -243,7 +262,7 @@ public class RobotContainer {
 		BUTTON_8.onTrue(
 				Commands.parallel(
 						elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION),
-						pivot.setTargetPos(PivotConstants.PIVOT_HOME_POSITION)));
+						pivot.setTargetPos(PivotConstants.POSITION_1)));
 
 		BUTTON_16.onTrue(
 				Commands.parallel(
@@ -251,7 +270,7 @@ public class RobotContainer {
 						pivot.setTargetPos(PivotConstants.ALGAE_HOLD)));
 
 		BUTTON_9.onTrue(pivot.setTargetPos(PivotConstants.GROUND_INTAKE));
-		BUTTON_10.onTrue(pivot.setTargetPos(PivotConstants.GROUND_INTAKE - 35));
+		BUTTON_10.onTrue(pivot.setTargetPos(PivotConstants.PROCESSOR));
 		BUTTON_11.onTrue(
 				Commands.sequence(
 						elevator.setTargetPos(ElevatorConstants.ALGAE_LOW),
@@ -266,21 +285,26 @@ public class RobotContainer {
 		// BUTTON_13.whileTrue(climb.runUp()).whileFalse(climb.stop());
 		// BUTTON_14.whileTrue(climb.runDown()).whileFalse(climb.stop());
 
-		BUTTON_5.whileTrue(intake.setState(IntakeState.INTAKE_CORAL)).onFalse(intake.setState(IntakeState.IDLE));
+		BUTTON_5.whileTrue(Commands.sequence(
+				pivot.setTargetPos(PivotConstants.POSITION_1),
+				intake.setState(IntakeState.INTAKE_CORAL))).onFalse(intake.setState(IntakeState.IDLE));
 		BUTTON_6.whileTrue(intake.setState(IntakeState.OUTTAKE_CORAL)).onFalse(intake.setState(IntakeState.IDLE));
 		BUTTON_7.whileTrue(intake.setState(IntakeState.EJECT_CORAL)).onFalse(intake.setState(IntakeState.IDLE));
 		BUTTON_15.onTrue(
-				NamedCommands.getCommand("L4"));
+				Commands.sequence(
+						elevator.setTargetPos(ElevatorConstants.LEVEL_4_POSITION),
+						Commands.waitSeconds(0.75),
+						pivot.setTargetPos(PivotConstants.POSITION_4 - 5)));
 
 		controller.rightTrigger().whileTrue(
 				new ReefBranchAlign(drive,
-						new Transform2d(Units.inchesToMeters(-4.5), Units.inchesToMeters(2.25 + offset1),
+						new Transform2d(Units.inchesToMeters(-16.5), Units.inchesToMeters(-6.75),
 								new Rotation2d()),
 						() -> controller.getLeftY()));
 
 		controller.leftTrigger().whileTrue(
 				new ReefBranchAlign(drive,
-						new Transform2d(Units.inchesToMeters(-4.5), Units.inchesToMeters(offset2 + 2.25),
+						new Transform2d(Units.inchesToMeters(-16.5), Units.inchesToMeters(6.75),
 								new Rotation2d()),
 						() -> controller.getLeftY()));
 		controller.leftBumper().onTrue(
@@ -297,14 +321,7 @@ public class RobotContainer {
 
 	public void teleopInit() {
 		intake.setState(IntakeState.IDLE);
-
-		if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue) {
-			offset1 = 0.75;
-			offset2 = 15;
-		} else {
-			offset1 = -0.75;
-			offset2 = -15;
-		}
+		pivot.setTargetPos(PivotConstants.POSITION_1);
 	}
 
 }
