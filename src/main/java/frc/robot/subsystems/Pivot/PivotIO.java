@@ -14,4 +14,5 @@ public interface PivotIO {
 
 	public default void setPivotPosition(double wantedPosition) {
 	}
+
 }

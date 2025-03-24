@@ -30,9 +30,11 @@ import frc.robot.commands.*;
 import frc.robot.subsystems.climb.*;
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.elevator.*;
+import frc.robot.subsystems.elevator.Elevator.ElevatorState;
 import frc.robot.subsystems.intake.*;
 import frc.robot.subsystems.intake.Intake.IntakeState;
 import frc.robot.subsystems.pivot.*;
+import frc.robot.subsystems.pivot.Pivot.PivotState;
 import frc.robot.subsystems.vision.*;
 
 public class RobotContainer {
@@ -180,6 +182,29 @@ public class RobotContainer {
 								new Rotation2d()),
 						() -> controller.getLeftY()),
 				Commands.waitSeconds(1)));
+		NamedCommands.registerCommand("Align Right and L2", Commands.parallel(
+				new ReefBranchAlign(drive,
+						new Transform2d(Units.inchesToMeters(-16.5), Units.inchesToMeters(-6.5),
+								new Rotation2d()),
+						() -> controller.getLeftY()),
+				elevator.setState(ElevatorState.LEVEL_2_POSITION),
+				Commands.waitSeconds(1)));
+		NamedCommands.registerCommand("Align Left and L2", Commands.parallel(
+				new ReefBranchAlign(drive,
+						new Transform2d(Units.inchesToMeters(-16.5), Units.inchesToMeters(6.5),
+								new Rotation2d()),
+						() -> controller.getLeftY()),
+				elevator.setState(ElevatorState.LEVEL_4_POSITION),
+				Commands.waitSeconds(1)));
+		NamedCommands.registerCommand(" INSANE L4",
+				Commands.sequence(
+						intake.setState(IntakeState.EJECT_CORAL),
+						Commands.waitSeconds(.25),
+						Commands.parallel(
+								elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION),
+								pivot.setTargetPos(PivotConstants.POSITION_1),
+								intake.setState(IntakeState.INTAKE_CORAL)),
+						Commands.waitSeconds(0.5)));
 
 		autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -294,25 +319,68 @@ public class RobotContainer {
 				Commands.sequence(
 						elevator.setTargetPos(ElevatorConstants.LEVEL_4_POSITION),
 						Commands.waitSeconds(0.75),
-						pivot.setTargetPos(PivotConstants.POSITION_4 - 5)));
+						pivot.setTargetPos(PivotConstants.ALGAE_INTAKE - 40),
+						intake.setState(IntakeState.OUTTAKE_CORAL)));
 
 		controller.rightTrigger().whileTrue(
-				new ReefBranchAlign(drive,
-						new Transform2d(Units.inchesToMeters(-16.5), Units.inchesToMeters(-6.75),
-								new Rotation2d()),
-						() -> controller.getLeftY()));
+				Commands.sequence(
 
-		controller.leftTrigger().whileTrue(
-				new ReefBranchAlign(drive,
-						new Transform2d(Units.inchesToMeters(-16.5), Units.inchesToMeters(6.75),
-								new Rotation2d()),
-						() -> controller.getLeftY()));
-		controller.leftBumper().onTrue(
-				AkitDriveCommands.joystickDrive(
-						drive,
-						() -> -controller.getLeftY(),
-						() -> -controller.getLeftX(),
-						() -> -controller.getRightX()));
+						new ReefBranchAlign(drive,
+								new Transform2d(Units.inchesToMeters(-30), Units.inchesToMeters(-6.75),
+										new Rotation2d()),
+								() -> controller.getLeftY()),
+
+						Commands.waitSeconds(0.5),
+						elevator.setState(ElevatorState.LEVEL_4_POSITION),
+						pivot.setState(PivotState.POSITION_4),
+
+						new ReefBranchAlign(drive,
+								new Transform2d(Units.inchesToMeters(-16.5), Units.inchesToMeters(-6.75),
+										new Rotation2d()),
+								() -> controller.getLeftY()),
+
+						Commands.run(() -> intake.setState(IntakeState.EJECT_CORAL))));
+
+		// Commands.sequence(
+
+		// new ReefBranchAlign(drive,
+		// new Transform2d(Units.inchesToMeters(-30), Units.inchesToMeters(-6.75),
+		// new Rotation2d()),
+		// () -> controller.getLeftY()),
+
+		// Commands.runOnce(() -> {
+
+		// elevator.setState(ElevatorState.LEVEL_4_POSITION);
+
+		// pivot.setState(PivotState.POSITION_4);
+		// }),
+
+		// Commands.waitSeconds(1),
+
+		// new ReefBranchAlign(drive,
+		// new Transform2d(Units.inchesToMeters(-16.5), Units.inchesToMeters(-6.75),
+		// new Rotation2d()),
+		// () -> controller.getLeftY()),
+
+		// Commands.runOnce(() -> {
+		// intake.setState(IntakeState.EJECT_CORAL);
+		// })));
+
+		controller.leftBumper().whileTrue(
+				Commands.sequence(
+						new ReefBranchAlign(drive,
+								new Transform2d(Units.inchesToMeters(-16.5), Units.inchesToMeters(0),
+										new Rotation2d(Math.PI)),
+								() -> controller.getLeftY()),
+						new AutoAlgaeAlign(drive, elevator, pivot, intake, new Transform2d())));
+
+		// controller.leftBumper().onTrue(
+		// AkitDriveCommands.joystickDrive(
+		// drive,
+		// () -> -controller.getLeftY(),
+		// () -> -controller.getLeftX(),
+		// () -> -controller.getRightX()));
+		// }
 	}
 
 	public Command getAutonomousCommand() {
