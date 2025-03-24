@@ -1,5 +1,7 @@
 package frc.robot.subsystems.elevator;
 
+import frc.robot.subsystems.elevator.Elevator.ElevatorState;
+
 public class ElevatorConstants {
 	public static final int MOTOR_ELEVATOR_LEFT = 10;
 	public static final int MOTOR_ELEVATOR_RIGHT = 11;

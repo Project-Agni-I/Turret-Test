@@ -39,7 +39,7 @@ public class ReefBranchAlign extends Command {
 		m_shift = shift;
 		m_joystickInput = joystickXInput;
 
-		m_translationController = new ProfiledPIDController(5, 0.0, 0, new TrapezoidProfile.Constraints(3, 3));
+		m_translationController = new ProfiledPIDController(5, 0.0, 0, new TrapezoidProfile.Constraints(3, 1.5));
 		m_thetaController = new ProfiledPIDController(
 				6, 0.0, 0, new TrapezoidProfile.Constraints(1 * Math.PI, 1 * Math.PI));
 		this.m_drivetrain = drivetrain;
