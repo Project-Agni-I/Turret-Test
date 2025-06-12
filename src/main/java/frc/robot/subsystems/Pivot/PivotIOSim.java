@@ -1,21 +1,21 @@
-package frc.robot.subsystems.pivot;
+// package frc.robot.subsystems.Pivot;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class PivotIOSim implements PivotIO {
-	private double pivotPosition;
+// public class PivotIOSim implements PivotIO {
+// private double pivotPosition;
 
-	public PivotIOSim() {
-		pivotPosition = 0.0;
-	}
+// public PivotIOSim() {
+// pivotPosition = 0.0;
+// }
 
-	@Override
-	public void updateInputs(PivotIOInputs inputs) {
-		inputs.position = pivotPosition;
-	}
+// @Override
+// public void updateInputs(PivotIOInputs inputs) {
+// inputs.position = pivotPosition;
+// }
 
-	@Override
-	public void setPivotPosition(double position) {
-		pivotPosition = position;
-	}
-}
+// @Override
+// public void setPivotPosition(double position) {
+// pivotPosition = position;
+// }
+// }
