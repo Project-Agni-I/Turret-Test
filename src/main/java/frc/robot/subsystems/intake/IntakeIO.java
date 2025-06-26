@@ -16,5 +16,4 @@ public interface IntakeIO {
 
 	public default void setSpeeds(double speed1) {
 	}
-
 }
