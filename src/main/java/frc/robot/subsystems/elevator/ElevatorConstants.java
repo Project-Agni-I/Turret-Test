@@ -11,7 +11,7 @@ public class ElevatorConstants {
 	public static final double ELEVATOR_D = 0;
 	public static final double ELEVATOR_kG = 0.1;
 	public static final double ELEVATOR_kA = 0.01;
-	public static final double ELEVATOR_kV = 1.5;
+	public static final double ELEVATOR_kV = 0.75; // Reduced from 1.5 to 0.75 for slower movement
 	public static final double ELEVATOR_kS = 0.4;
 	public static final double ELEVATOR_HOME_POSITION = 0;
 	public static final double POSITION_TOLERANCE = 0.5;

@@ -31,6 +31,8 @@ import frc.robot.commands.*;
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.elevator.*;
 import frc.robot.subsystems.elevator.Elevator.ElevatorState;
+import frc.robot.subsystems.ball.*;
+import frc.robot.subsystems.ball.Ball.BallState;
 // import frc.robot.subsystems.pivot.*;
 // import frc.robot.subsystems.pivot.Pivot.PivotState;
 import frc.robot.subsystems.vision.*;
@@ -39,6 +41,7 @@ public class RobotContainer {
 	private final Drive drive;
 	// private final Climb climb;
 	private final Elevator elevator;
+	private final Ball ball;
 
 	// private final Pivot pivot;
 	private final VisionLocalizer vision;
@@ -75,6 +78,7 @@ public class RobotContainer {
 						new ModuleIOTalonFX(TunerConstants.BackRight));
 				// climb = new Climb(new ClimbIOReal());
 				elevator = new Elevator(new ElevatorIOReal());
+				ball = new Ball(new BallIOReal());
 
 				// pivot = new Pivot(new PivotIOReal());
 				vision = new VisionLocalizer(drive::addVisionMeasurement, drive,
@@ -92,6 +96,7 @@ public class RobotContainer {
 						new ModuleIOSim(TunerConstants.BackRight));
 				// climb = new Climb(new ClimbIOSim());
 				elevator = new Elevator(new ElevatorIOSim());
+				ball = new Ball(new BallIOSim());
 
 				// pivot = new Pivot(new PivotIOSim());
 				vision = new VisionLocalizer(
@@ -119,6 +124,8 @@ public class RobotContainer {
 				// climb = new Climb(new ClimbIO() {});
 				elevator = new Elevator(new ElevatorIO() {
 				});
+				ball = new Ball(new BallIO() {
+				});
 
 				// pivot = new Pivot(new PivotIO() {});
 				vision = new VisionLocalizer(drive::addVisionMeasurement, drive, new VisionIO() {
@@ -142,60 +149,71 @@ public class RobotContainer {
 		drive.setDefaultCommand(
 				AkitDriveCommands.joystickDrive(
 						drive,
-						() -> -controller.getLeftY(),
-						() -> -controller.getLeftX(),
-						() -> -controller.getRightX()));
+						() -> -controller.getLeftY() * 0.5, // Reduced speed to 50%
+						() -> -controller.getLeftX() * 0.5, // Reduced speed to 50%
+						() -> -controller.getRightX() * 0.5)); // Reduced speed to 50%
 
-		controller
-				.rightBumper()
-				.onTrue(
-						Commands.runOnce(
-								() -> drive.setPose(
-										new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-								drive)
-								.ignoringDisable(true));
+		// Commented out drive pose reset to use for elevator control
+		// controller
+		// .rightBumper()
+		// .onTrue(
+		// Commands.runOnce(
+		// () -> drive.setPose(
+		// new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
+		// drive)
+		// .ignoringDisable(true));
 
-		BUTTON_1.onTrue(
+		// Xbox Controller Elevator Position Controls
+		// X button - Home position (0)
+		controller.x().onTrue(
 				Commands.parallel(
-						elevator.setTargetPos(ElevatorConstants.LEVEL_1_POSITION)));
+						elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION),
+						elevator.setState(Elevator.ElevatorState.ELEVATOR_HOME_POSITION)));
 
-		BUTTON_2.onTrue(
-				Commands.sequence(
+		// D-Pad Up - Level 1 position (3.5)
+		controller.povUp().onTrue(
+				Commands.parallel(
+						elevator.setTargetPos(ElevatorConstants.LEVEL_1_POSITION),
+						elevator.setState(Elevator.ElevatorState.LEVEL_1_POSITION)));
+
+		// D-Pad Right - Level 2 position (8)
+		controller.povRight().onTrue(
+				Commands.parallel(
 						elevator.setTargetPos(ElevatorConstants.LEVEL_2_POSITION),
-						Commands.waitSeconds(0.15)));
+						elevator.setState(Elevator.ElevatorState.LEVEL_2_POSITION)));
 
-		BUTTON_3.onTrue(
-				Commands.sequence(
+		// D-Pad Down - Level 3 position (16)
+		controller.povDown().onTrue(
+				Commands.parallel(
 						elevator.setTargetPos(ElevatorConstants.LEVEL_3_POSITION),
-						Commands.waitSeconds(0.4)));
+						elevator.setState(Elevator.ElevatorState.LEVEL_3_POSITION)));
 
-		BUTTON_4.onTrue(
-				Commands.sequence(
+		// D-Pad Left - Level 4 position (28)
+		controller.povLeft().onTrue(
+				Commands.parallel(
 						elevator.setTargetPos(ElevatorConstants.LEVEL_4_POSITION),
-						Commands.waitSeconds(0.75)));
+						elevator.setState(Elevator.ElevatorState.LEVEL_4_POSITION)));
 
-		BUTTON_8.onTrue(
-				Commands.parallel(
-						elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION)));
+		// Manual Elevator Controls - Triggers
+		// Right trigger - Elevator Up (while held)
+		controller.rightTrigger().whileTrue(elevator.runUp());
 
-		BUTTON_16.onTrue(
-				Commands.parallel(
-						elevator.setTargetPos(ElevatorConstants.ELEVATOR_HOME_POSITION)));
+		// Left trigger - Elevator Down (while held)
+		controller.leftTrigger().whileTrue(elevator.runDown());
 
-		BUTTON_11.onTrue(
-				Commands.sequence(
-						elevator.setTargetPos(ElevatorConstants.ALGAE_LOW),
-						Commands.waitSeconds(0.5)));
-		// pivot.setTargetPos(PivotConstants.ALGAE_INTAKE)));
+		// Ball Controls - Bumpers
+		// Right bumper - Intake (while held)
+		controller.rightBumper().whileTrue(ball.intake());
 
-		BUTTON_12.onTrue(
-				Commands.sequence(
-						elevator.setTargetPos(ElevatorConstants.ALGAE_HIGH),
-						Commands.waitSeconds(0.5)));
-	}
+		// Left bumper - Outtake (while held)
+		controller.leftBumper().whileTrue(ball.outtake());
 
-	public Command getAutonomousCommand() {
-		return autoChooser.get();
+		// Manual Elevator Controls - Operator Control Board (commented out)
+		// Button 1 - Elevator Up (while held)
+		// BUTTON_1.whileTrue(elevator.runUp());
+
+		// Button 2 - Elevator Down (while held)
+		// BUTTON_2.whileTrue(elevator.runDown());
 	}
 
 	public void teleopInit() {

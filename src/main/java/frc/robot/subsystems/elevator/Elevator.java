@@ -45,6 +45,9 @@ public class Elevator extends SubsystemBase {
 			case ELEVATOR_HOME_POSITION:
 				io.setElevatorPosition(ElevatorConstants.ELEVATOR_HOME_POSITION);
 				break;
+			case MANUAL_CONTROL:
+				// Don't call setElevatorPosition in manual mode - let the IO handle it
+				break;
 		}
 
 		Logger.recordOutput("elevator/currentPosition", inputs.position);
@@ -53,7 +56,7 @@ public class Elevator extends SubsystemBase {
 	}
 
 	public enum ElevatorState {
-		LEVEL_1_POSITION, LEVEL_2_POSITION, LEVEL_3_POSITION, LEVEL_4_POSITION, ALGAE_LOW, ALGAE_HIGH, ELEVATOR_HOME_POSITION
+		LEVEL_1_POSITION, LEVEL_2_POSITION, LEVEL_3_POSITION, LEVEL_4_POSITION, ALGAE_LOW, ALGAE_HIGH, ELEVATOR_HOME_POSITION, MANUAL_CONTROL
 	}
 
 	public Command setState(ElevatorState newState) {
@@ -69,11 +72,27 @@ public class Elevator extends SubsystemBase {
 	}
 
 	public Command runUp() {
-		return Commands.runEnd(() -> io.runManualUp(), () -> io.stop());
+		return Commands.runEnd(
+				() -> {
+					state = ElevatorState.MANUAL_CONTROL;
+					io.runManualUp();
+				},
+				() -> {
+					io.stop();
+					// Don't change state - keep it in MANUAL_CONTROL so position stays
+				});
 	}
 
 	public Command runDown() {
-		return Commands.runEnd(() -> io.runManualDown(), () -> io.stop());
+		return Commands.runEnd(
+				() -> {
+					state = ElevatorState.MANUAL_CONTROL;
+					io.runManualDown();
+				},
+				() -> {
+					io.stop();
+					// Don't change state - keep it in MANUAL_CONTROL so position stays
+				});
 	}
 
 	public Command stop() {
